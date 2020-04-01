@@ -23,12 +23,24 @@
   $(".btn").click( function(){
     let name = $(".name").val();
     let psd = $(".psd").val()
-    console.log($(".name").val());
-    $.post("/add",{
-      username: name,
-      password: psd
-    },function(result){
-      console.log(result)
+    
+    let data = {
+      "username": name,
+      "password": psd
+    }
+    
+    $.ajax({
+      type: 'POST',
+      url: "/checklogin",
+      data: JSON.stringify(data),
+      success: function(res){
+        if(res.success){
+          // console.log("登录成功")
+          window.location.href="/"
+        }else{
+          alert(res.msg)
+        }
+      },
     });
   });
 </script>

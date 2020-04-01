@@ -1,6 +1,7 @@
 var express = require("express");
 var app = express();
 var session = require("express-session");
+var bodyParser = require('body-parser'); // post方法
 
 db = require("./model/main.js");
 hash = require("./model/hash.js");
@@ -11,6 +12,11 @@ app.use(session({
   cookie: {maxAge: 60000},
   saveUninitialized: true,
 }));
+
+// post json解析
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+
 app.use(express.static("./public"));
 app.set("view engine", "ejs");
 
@@ -33,16 +39,16 @@ app.get("/",function(req,res){
 app.get("/register",function(req,res){
   res.render("register")
 })
-app.get("/add",function(req,res){
+app.post("/add",function(req,res){
   db.insertOne("test","users",{
-    "username": req.query.username,
-    "password": hash.hash(req.query.password)
+    "username": req.body.username,
+    "password": hash.hash(req.body.password)
   },function(err,result){
     if(err){
-      res.send(err);
+      res.json({success: true,msg:err});
       return;
     }
-    res.send("注册成功");
+    res.json({success: true});
   })
 })
 
@@ -50,23 +56,23 @@ app.get("/add",function(req,res){
 app.get("/login",function(req,res){
   res.render("login");
 })
-app.get("/checklogin",function(req,res){
-  var name = req.query.username;
-  var psd = req.query.password;
+app.post("/checklogin",function(req,res){
+  var name = req.body.username;
+  var psd = req.body.password;
 
   db.find("test","users",{"username": name},function(err, result){
     if(result.list.length == 0){
-      res.send("没有该用户");
+      res.json({success: false,msg: "没有该用户"});
       return;
     }
     var sjkpsd = result.list[0].password;
     if(hash.hash(psd) == sjkpsd){
       req.session.login = "1";
       req.session.username = result.list[0].username;
-      // res.send("登录成功！你是"+result.list[0].username);
-      res.redirect("/")
+      res.json({success: true});
+      // res.redirect("/")
     }else{
-      res.send("密码错误");
+      res.json({success: false,msg: "密码错误"});
     }
   })
 })
