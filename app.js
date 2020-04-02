@@ -45,7 +45,7 @@ app.post("/add",function(req,res){
     "password": hash(req.body.password)
   },function(err,result){
     if(err){
-      res.json({success: true,msg:err});
+      res.json({success: false,msg: err});
       return;
     }
     res.json({success: true});
