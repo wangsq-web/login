@@ -42,7 +42,7 @@ app.get("/register",function(req,res){
 app.post("/add",function(req,res){
   db.insertOne("test","users",{
     "username": req.body.username,
-    "password": hash.hash(req.body.password)
+    "password": hash(req.body.password)
   },function(err,result){
     if(err){
       res.json({success: true,msg:err});
@@ -66,7 +66,7 @@ app.post("/checklogin",function(req,res){
       return;
     }
     var sjkpsd = result.list[0].password;
-    if(hash.hash(psd) == sjkpsd){
+    if(hash(psd) == sjkpsd){
       req.session.login = "1";
       req.session.username = result.list[0].username;
       res.json({success: true});
